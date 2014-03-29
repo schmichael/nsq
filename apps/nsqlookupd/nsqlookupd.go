@@ -28,6 +28,7 @@ var (
 
 	inactiveProducerTimeout = flagSet.Duration("inactive-producer-timeout", 300*time.Second, "duration of time a producer will remain in the active list since its last ping")
 	tombstoneLifetime       = flagSet.Duration("tombstone-lifetime", 45*time.Second, "duration of time a producer will remain tombstoned if registration remains")
+	etcdAddrs               = flagSet.String("etcd-address", "", "if set mirrors registrations to etcd")
 )
 
 func main() {

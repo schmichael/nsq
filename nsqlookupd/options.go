@@ -9,9 +9,10 @@ import (
 type nsqlookupdOptions struct {
 	Verbose bool `flag:"verbose"`
 
-	TCPAddress       string `flag:"tcp-address"`
-	HTTPAddress      string `flag:"http-address"`
-	BroadcastAddress string `flag:"broadcast-address"`
+	TCPAddress       string   `flag:"tcp-address"`
+	HTTPAddress      string   `flag:"http-address"`
+	BroadcastAddress string   `flag:"broadcast-address"`
+	EtcdAddrs        []string `flag:"etcd-address"`
 
 	InactiveProducerTimeout time.Duration `flag:"inactive-producer-timeout"`
 	TombstoneLifetime       time.Duration `flag:"tombstone-lifetime"`

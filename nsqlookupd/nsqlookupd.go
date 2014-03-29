@@ -15,6 +15,7 @@ type NSQLookupd struct {
 	httpListener net.Listener
 	waitGroup    util.WaitGroupWrapper
 	DB           *RegistrationDB
+	etcdClient   *etcdClient
 }
 
 func NewNSQLookupd(options *nsqlookupdOptions) *NSQLookupd {
@@ -28,11 +29,14 @@ func NewNSQLookupd(options *nsqlookupdOptions) *NSQLookupd {
 		log.Fatal(err)
 	}
 
+	log.Printf("etcd: %v", options.EtcdAddrs)
+
 	return &NSQLookupd{
-		options:  options,
-		tcpAddr:  tcpAddr,
-		httpAddr: httpAddr,
-		DB:       NewRegistrationDB(),
+		options:    options,
+		tcpAddr:    tcpAddr,
+		httpAddr:   httpAddr,
+		DB:         NewRegistrationDB(),
+		etcdClient: dialEtcd(options),
 	}
 }
 
@@ -54,9 +58,11 @@ func (l *NSQLookupd) Main() {
 	l.httpListener = httpListener
 	httpServer := &httpServer{context: context}
 	l.waitGroup.Wrap(func() { util.HTTPServer(httpListener, httpServer) })
+	l.etcdClient.RegisterLookupd(l.options)
 }
 
 func (l *NSQLookupd) Exit() {
+	l.etcdClient.UnregisterLookupd(l.options)
 	if l.tcpListener != nil {
 		l.tcpListener.Close()
 	}
