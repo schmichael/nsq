@@ -2,6 +2,52 @@
 
 ## Binaries
 
+### 0.2.28 - 2014-04-28
+
+**Upgrading from 0.2.27**: No backwards incompatible changes.  We've deprecated the `short_id`
+and `long_id` options in the `IDENTIFY` command in favor of `client_id` and `hostname`, which
+more accurately reflect the data typically used.
+
+This release includes a few important new features, in particular enhanced `nsqd`
+TLS support thanks to a big contribution by @chrisroberts.
+
+You can now *require* that clients negotiate TLS with `--tls-required` and you can configure a
+client certificate policy via `--tls-client-auth-policy` (`require` or `require-verify`):
+
+ * `require` - the client must offer a certificate, otherwise rejected
+ * `require-verify` - the client must offer a valid certificate according to the default CA or
+                      the chain specified by `--tls-root-ca-file`, otherwise rejected
+
+This can be used as a form of client authentication.
+
+Additionally, `nsqd` is now structured such that it is importable in other Go applications
+via `github.com/bitly/nsq/nsqd`, thanks to @kzvezdarov.
+
+Finally, thanks to @paddyforan, `nsq_to_file` can now archive *multiple* topics or 
+optionally archive *all* discovered topics (by specifying no `--topic` params
+and using `--lookupd-http-address`).
+
+New Features / Enhancements:
+
+ * #334 - `nsq_to_file` can archive many topics (thanks @paddyforan)
+ * #327 - add `nsqd` TLS client certificate verification policy, ability
+          to require TLS, and HTTPS support (thanks @chrisroberts)
+ * #325 - make `nsqd` importable (`github.com/bitly/nsq/nsqd`) (thanks @kzvezdarov)
+ * #321 - improve `IDENTIFY` options (replace `short_id` and `long_id` with
+          `client_id` and `hostname`)
+ * #319 - allow path separator in `nsq_to_file` filenames (thanks @jsocol)
+ * #324 - display memory depth and total depth in `nsq_stat`
+
+Bug Fixes:
+
+ * bitly/go-nsq#19 and bitly/go-nsq#29 - fix deadlocks on `nsq.Reader` connection close/exit, this
+                                         impacts the utilities packaged with the NSQ binary
+                                         distribution such as `nsq_to_file`, `nsq_to_http`,
+                                         `nsq_to_nsq` and `nsq_tail`.
+ * #329 - use heartbeat interval for write deadline
+ * #321/#326 - improve benchmarking tests
+ * #315/#318 - fix test data races / flakiness
+
 ### 0.2.27 - 2014-02-17
 
 **Upgrading from 0.2.26**: No backwards incompatible changes.  We deprecated `--max-message-size`
@@ -74,7 +120,7 @@ NOTE: we are now publishing additional binaries built against go1.2
 The most prominent addition is the tracking of end-to-end message processing percentiles. This
 measures the amount of time it's taking from `PUB` to `FIN` per topic/channel. The percentiles are
 configurable and, because there is *some* overhead in collecting this data, it can be turned off
-entirely. Please see [the section in the docs](http://bitly.github.io/nsq/components/nsqd.html) for
+entirely. Please see [the section in the docs](http://nsq.io/components/nsqd.html) for
 implementation details.
 
 Additionally, the utility apps received comprehensive support for all configurable reader options
